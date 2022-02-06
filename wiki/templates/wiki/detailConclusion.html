@@ -1,0 +1,40 @@
+<head><!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'wiki/css/style.min.css' %}">
+        <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <title>{{conclusion}}</title>
+</head>
+<body>
+    <div class="container">
+        <h1>{{conclusion}}</h1>
+        <dl>
+            <p><hr>
+            <dd>Attacked By: </dd>
+            <div  class="well well-sm">
+            {% for argument in conclusion.argument_set.all %}
+                {% if argument.isSupportive %}
+                {% else %}
+                <dt><a href="{% url 'wiki:argument' argument.id %}" class="premise">{{argument.premise_group}}</a></dt>
+                {% endif %}
+            {% endfor %}
+            </div>
+        <p><hr>
+            <dd>Supported By: </dd>
+            <div  class="well well-sm">
+            {% for argument in conclusion.argument_set.all %}
+                {% if argument.isSupportive %}
+                <dt><a href="{% url 'wiki:argument' argument.id %}" class="premise">{{argument.premise_group}}</a></dt>
+                {% endif %}
+            {% endfor %}
+            </div>
+         </dl>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'wiki/style.min.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <title>{{categorylabel}}</title>
+</head>
+    <div class="container">
+    <h1>{{categorylabel}}</h1>
+        <p><hr>
+    <dl>
+        <h2>High relevance for this Category</h2>
+        <div class="well well-sm">
+        {% for category in categorylabel.category_set.all %}
+            {% if category.relevance >= 0.9 %}
+            {% for argument in category.argument_set.all %}
+           <dd><a href = "{% url 'wiki:argument' argument.id %}"><i  class="fa fa-comment-o" aria-hidden="true"></i></a>
+                <span class="text-muted">Regarding that</span>
+                <a href="{% url 'wiki:premises' argument.premise_group.id %}"><font color="#ee82ee">{{argument.premise_group}}</font></a>
+                {% if argument.isSupportive %}
+                 <span class="text-success">{{argument.type_text}}</span>
+                {% else %}
+                <span class="text-danger">{{argument.type_text}}</span>
+                {% endif %}
+                {% if argument.conclusion %}
+                <a href="{% url 'wiki:conclusion' argument.conclusion.id %}" class="text-secondary">{{argument.conclusion}}</a>
+                {% else %}
+                    <a href = "{% url 'wiki:argument' argument.attacked_argument.id %}" class="text-muted">{{argument.attacked_argument}}</a>
+                {% endif %}
+            </dd>
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+            </div>
+        <h2>Medium relevance for this Category</h2>
+        <div class="well well-sm">
+    {% for category in categorylabel.category_set.all %}
+        {% if category.relevance > 0.7 and category.relevance < 0.9 %}
+        {% for argument in category.argument_set.all %}
+       <dd><a href = "{% url 'wiki:argument' argument.id %}"><i  class="fa fa-comment-o" aria-hidden="true"></i></a>
+            <span class="text-muted">Regarding that</span>
+            <a href="{% url 'wiki:premises' argument.premise_group.id %}"><font color="#ee82ee">{{argument.premise_group}}</font></a>
+            {% if argument.isSupportive %}
+             <span class="text-success">{{argument.type_text}}</span>
+            {% else %}
+            <span class="text-danger">{{argument.type_text}}</span>
+            {% endif %}
+            {% if argument.conclusion %}
+            <a href="{% url 'wiki:conclusion' argument.conclusion.id %}" class="text-secondary">{{argument.conclusion}}</a>
+            {% else %}
+                <a href = "{% url 'wiki:argument' argument.attacked_argument.id %}" class="text-muted">{{argument.attacked_argument}}</a>
+            {% endif %}
+        </dd>
+        {% endfor %}
+        {% endif %}
+            {% endfor %}
+        </div>
+        <h2>Low relevance for this Category</h2>
+        <div class="well well-sm">
+    {% for category in categorylabel.category_set.all %}
+        {% if category.relevance < 0.7  %}
+        {% for argument in category.argument_set.all %}
+       <dd><a href = "{% url 'wiki:argument' argument.id %}"><i  class="fa fa-comment-o" aria-hidden="true"></i></a>
+            <span class="text-muted">Regarding that</span>
+            <a href="{% url 'wiki:premises' argument.premise_group.id %}"><font color="#ee82ee">{{argument.premise_group}}</font></a>
+            {% if argument.isSupportive %}
+             <span class="text-success">{{argument.type_text}}</span>
+            {% else %}
+            <span class="text-danger">{{argument.type_text}}</span>
+            {% endif %}
+            {% if argument.conclusion %}
+            <a href="{% url 'wiki:conclusion' argument.conclusion.id %}" class="text-secondary">{{argument.conclusion}}</a>
+            {% else %}
+                <a href = "{% url 'wiki:argument' argument.attacked_argument.id %}" class="text-muted">{{argument.attacked_argument}}</a>
+            {% endif %}
+        </dd>
+        {% endfor %}
+        {% endif %}
+            {% endfor %}
+               </div>
+    </dl>
+    </div>
+</body>
+</html>

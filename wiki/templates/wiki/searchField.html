@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'wiki/css/style.min.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <title>Search</title>
+</head>
+<body>
+<div class="container">
+
+    <h2>Arguments</h2>
+
+    <form class="form-inline" action="" method="GET">
+        {{ form }}
+        <button class="btn btn-primary" type="submit">Search</button>
+        </fieldset>
+    </form>
+
+    <table class="table table-bordered table-condensed">
+        <tr>
+            <th>Argument</th>
+            <th>Date</th>
+            <th>Supportive</th>
+            <th>Language</th>
+            <th>Argument Acceptance</th>
+        </tr>
+        {% for object in object_list %}
+        <tr>
+            <td><a href = "{% url 'wiki:argument' object.id %}"><i  class="fa fa-comment-o" aria-hidden="true"></i></a>
+                <span class="text-muted">Regarding that</span>
+                <a href="{% url 'wiki:premises' object.premise_group.id %}" class="premise">{{object.premise_group}}</a>
+                {% if object.isSupportive %}
+                 <span class="text-success">{{object.type_text}}</span>
+                {% else %}
+                <span class="text-danger">{{object.type_text}}</span>
+                {% endif %}
+                {% if object.conclusion %}
+                <a href="{% url 'wiki:conclusion' object.conclusion.id %}" class="text-secondary">{{object.conclusion}}</a>
+                {% else %}
+                    <a href = "{% url 'wiki:argument' object.attacked_argument.id %}" class="text-muted">{{object.attacked_argument}}</a>
+            {% endif %}</td>
+            <td>{{object.date}}</td>
+            <td>{{object.isSupportive}}</td>
+            <td>{{object.lang}}</td>
+            <td>{{object.argument_acceptance}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% if is_paginated %}
+        {% include "wiki/paginator.html" %}
+    {% endif %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js">
+    $(document).ready(function(){
+      $('[data-toggle="tooltip"]').tooltip();
+    });</script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <title>{{issue.issue_title}}</title>
+</head>
+<body>
+    <div class="container">
+    <h1>{{issue.issue_title}}</h1>
+        <div class="panel-group" id="accordion">
+        {% for position in issue.position_set.all %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#c{{position.id}}">
+                            <h8>{{position}}</h8>
+                            <div class="progress">
+                                <a href="#" data-toggle="tooltip" data-placement="auto" title="This progressbar represents the acceptance of a position.
+                                Red means that the negation of the position is accepted.
+                                Orange conveys that there is no real opinion picked by the participants.
+                                Green tells us that the position is accepted as it is.">
+            {% if position.acceptance_score <= 25 %}
+                    <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{position.acceptance_score}}" aria-valuemin="0" aria-valuemax="100" style="width:{{position.acceptance_score}}%">
+                        </div>
+            {% elif position.acceptance_score >= 75 %}
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{position.acceptance_score}}" aria-valuemin="0" aria-valuemax="100" style="width:{{position.acceptance_score}}%">
+                        </div>
+            {% else %}
+                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="{{position.acceptance_score}}" aria-valuemin="0" aria-valuemax="100" style="width:{{position.acceptance_score}}%">
+                        </div>
+             {% endif %}</a></div></a></h4>
+                </div>
+            <div id="c{{position.id}}" class="panel-collapse collapse">
+            <div class="panel-body">
+                <dl>
+
+            {% for argument in position.argument_set.all %}
+                    <dd>
+                 <a href = "{% url 'wiki:argument' argument.id %}"><i  class="fa fa-comment-o" aria-hidden="true"></i></a>
+                <span class="text-muted">Regarding that</span>
+                <a href="{% url 'wiki:premises' argument.premise_group.id %}"><font color="#ee82ee">{{argument.premise_group}}</font></a>
+                {% if argument.isSupportive %}
+                 <span class="text-success">{{argument.type_text}}</span>
+                {% else %}
+                <span class="text-danger">{{argument.type_text}}</span>
+                {% endif %}
+                {% if argument.conclusion %}
+                <a href="{% url 'wiki:conclusion' argument.conclusion.id %}" class="text-secondary">{{argument.conclusion}}</a>
+                {% else %}
+                    <a href = "{% url 'wiki:argument' argument.attacked_argument.id %}" class="text-muted">{{argument.attacked_argument}}</a>
+                {%endif%}</dd>
+            {% endfor %}</dl>
+            </div></div></div>
+        {% endfor %}
+    </div>
+    </div>
+</body>
+</html>

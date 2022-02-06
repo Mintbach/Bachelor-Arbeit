@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% load static  %}
+    <link rel="stylesheet" type="text/css" href="{% static 'wiki/css/style.min.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <title>{{argument}}</title>
+</head>
+        <div class="container">
+        <h1><span class="text-muted">Regarding that, </span>
+            <a href="{% url 'wiki:premises' argument.premise_group.id %}" class="premise">{{argument.premise_group}}</a>
+                {% if argument.isSupportive %}
+                <span class="text-success">{{argument.type_text}}</span>
+                {% else %}
+                <span class="text-danger">{{argument.type_text}}</span>
+                {% endif %}
+            {% if argument.conclusion %}
+            <a href = "{% url 'wiki:conclusion' argument.conclusion.id %}" class="text-secondary">{{argument.conclusion}}</a>
+            {% else %}
+            <a href = "{% url 'wiki:argument' argument.attacked_argument.id %}" class="text-secondary">{{argument.attacked_argument}}</a>
+            {% endif %}
+            {% if argument.sound %}
+            <a onclick="playSound()"><i class="fa fa-volume-up" aria-hidden="true"></i></a>
+            {% endif %}
+        </h1>
+        <p><hr>
+        <div id="contents">
+            <h3>Contents</h3>
+            <div  class="well well-sm">
+               <ul class="smooth-scroll list-unstyled">
+                    <li><a href="#general">1 General Structure</a></li>
+                    <li class="sub"><a href="#type">1.1 Type</a></li>
+                    <li class="sub"><a href="#sent">1.2 Sentiment</a></li>
+                    <li class="sub"><a href="#cont">1.3 Context</a></li>
+                    <li class="subsub"><a href="#ui">1.3.3 Under Issues</a></li>
+                    <li class="subsub"><a href="#up">1.3.2 Under Positions</a></li>
+                    <li class="subsub"><a href="#roc">1.3.3 Rebuts of Conclusion</a></li>
+                    <li class="subsub"><a href="#soi">1.3.4 Supports for Inference</a></li>
+                    <li class="subsub"><a href="#ub">1.3.5 Undermined by</a></li>
+                    <li class="subsub"><a href="#sop">1.3.6 Supports for Premise</a></li>
+                    <li class="subsub"><a href="#ifc">1.3.7 Inferences from Conclusion</a></li>
+                    <li class="subsub"><a href="#ab">1.3.8 Attacked by</a></li>
+                    <li><a href="#statistics">2 Indices</a></li>
+                    <li class="sub"><a href="#votes">2.1 Votes</a></li>
+                    <li class="sub"><a href="#acc">2.2 Conclusion Acceptance</a></li>
+                    <li class="sub"><a href="#aris">2.3 Automated Readability Score</a></li>
+                    <li class="sub"><a href="#fre">2.4 Flesch Reading Ease</a></li>
+                    <li class="sub"><a href="#aca">2.5 Academic Score</a></li>
+                    <li class="sub"><a href="#emo">2.6 Emotions</a></li>
+                    <li><a href="#background">3 Background Information</a></li>
+                    <li class="sub"><a href="#lang">3.1 Language Analysis</a></li>
+                    <li class="subsub"><a href="#key">3.1.1 Keywords</a></li>
+                    <li class="subsub"><a href="#conc">3.1.2 Concepts</a></li>
+                    <li class="subsub"><a href="#cat">3.1.3 Categories</a></li>
+                    <li class="sub"><a href="#wiki">3.2 Wiki Research</a></li>
+                    <li class="subsub"><a href="#wikif">3.2.1 Precise Wikipedia Information</a></li>
+                    <li class="subsub"><a href="#wikia">3.2.2 Ambivalent Wikipedia Information</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="general" id="general">
+            <h3>General Structure</h3>
+            <div  class="well well-sm">
+                <div id="type">
+                    <dt>Type :</dt>
+                        {% if argument.isSupportive %}
+                        <span class="text-success">{{argument.type}}</span>
+                        {% else %}
+                        <span class="text-danger">{{argument.type}}</span>
+                        {% endif %}
+                </div>
+            <p><hr>
+                <div id="sent">
+                    <dt>Sentiment :</dt>
+                    {% if argument.sentiment_accuracy < 0 %}
+                            <span class="text-danger">negative</span>
+                    {% elif argument.sentiment_accuracy > 0 %}
+                            <span class="text-success">positive</span>
+                    {% else %}
+                            <span class="text-muted">neutral</span>
+                    {% endif %}
+                </div>
+            <p><hr>
+                <div id="cont">
+                    <div id="ui">
+                        <dt>Under Issues: </dt>
+                            {% for issue in argument.under_issues %}
+                                    <dd><a href="{% url 'wiki:issue' issue.id %}">{{issue.issue_title}}</a></dd>
+                            {% endfor %}
+                        <p><hr>
+                    </div>
+                    <div id="up">
+                        <dt>Under positions :</dt>
+                            {% for position in argument.under_position.all %}
+                            <dd>{{position}}</dd>
+                            {% endfor %}
+                        <p><hr>
+                    </div>
+                    <div id="roc">
+                        <dt>Rebuts of conclusion : </dt>
+                         {% for rebut in argument.conclusion.argument_set.all %}
+                            {% if rebut.isSupportive != argument.isSupportive %}
+                        <dd><a href= "{% url 'wiki:argument' rebut.id %}" class="premise">{{rebut.premise_group}}</a></dd>
+                         {% endif %}
+                         {% endfor %}
+                        <p><hr>
+                    </div>
+                    <div id="soi">
+                        <dt>Supports for inference : </dt>
+                        {% for support in argument.conclusion.argument_set.all %}
+                            {% if support.isSupportive == argument.isSupportive %}
+                                {% if support == argument %}
+                                {% else %}
+                                    <dd><a href= "{% url 'wiki:argument' support.id %}" class="premise">{{support.premise_group}}</a></dd>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        <p><hr>
+                    </div>
+                    <div id="ub">
+                        <dt>Undermine by : </dt>
+                         {% for premise in argument.premise_group.premise_set.all %}
+                            {% for conclusion in premise.statement.conclusion_set.all %}
+                                {% for undermine in conclusion.argument_set.all %}
+                                    {% if undermine.isSupportive %}
+                                        {% else %}
+                                    <dd><a href= "{% url 'wiki:argument' undermine.id %}" class="premise">{{undermine.premise_group}}</a></dd>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        {% endfor %}
+                        <p><hr>
+                        </div>
+                        <div id="sop">
+                             <dt>Supports of premise : </dt>
+                            {% for premise in argument.premise_group.premise_set.all %}
+                                {% for conclusion in premise.statement.conclusion_set.all %}
+                                    {% for support in conclusion.argument_set.all %}
+                                        {% if support.isSupportive %}
+                                            {% if support is argument %}
+                                            {% else %}
+                                                <dd><a href= "{% url 'wiki:argument' support.id %}" class="premise">{{support.premise_group}}</a></dd>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endfor %}
+                             <p><hr>
+                        </div>
+                        <div id="ifc">
+                             <dt>Inferences from conclusion : </dt>
+                            {% for premise in argument.conclusion.statement.premise_set.all %}
+                                {% for inference in premise.premiseGroup.argument_set.all %}
+                                            <dd>{% if inference.isSupportive %}
+                                                    <span class="text-success">{{inference.type_text}}</span>
+                                                  {% else %}
+                                                    <span class="text-danger">{{inference.type_text}}</span>
+                                                 {% endif %}
+                                                <a href= "{% url 'wiki:argument' inference.id %}" class="text-secondary">
+                                                {{inference.conclusion}}</a></dd>
+                                {% endfor %}
+                            {% endfor %}
+                             <p><hr>
+                        </div>
+                    <div id="ab">
+                      <dt>Attacked by : </dt>
+                        {% for undercut in argument.attacked_by %}
+                            <dd><a href= "{% url 'wiki:argument' undercut.id %}" class="premise">{{undercut.premise_group}}</a></dd>
+                     {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="statistics" id="statistics">
+        <h3>Indices: </h3>
+             <div  class="well well-sm">
+                <div id="votes">
+                    <div class="container_bar">
+                        {% if argument.downVotes != 0 or argument.upVotes != 0 %}
+                     <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3>Votes</h3>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="voteRatio"></canvas>
+                        </div>
+                         </div>
+                         {% else %}
+                         <h4>No votes recorded</h4>
+                         {% endif %}
+                    </div>
+                </div>
+            <p><hr>
+                <div id="acc">
+                     <div class="container_bar">
+                         {% if argument.argument_acceptance %}
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                        <h3>The conclusion under this argument has a acceptability of</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <canvas id="acceptance"></canvas>
+                                </div>
+                            </div>
+                         {% else %}
+                            <h4>No acceptability score</h4>
+                         {% endif %}
+                     </div>
+                </div>
+                <p><hr>
+                <div id="aris">
+                <div class="container_bar">
+                {% if argument.ari %}
+                 <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <a id="AripopOver" href='#' data-toggle='popover' title="Automated Readability Index" data-trigger="hover">
+                            <h3>Automated Readability Index</h3>
+                        </a>
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="ari"></canvas>
+                    </div>
+                </div>
+                   <div id="aripopovercontent" class="popovercontent">
+                <table class="table table-bordered" style="width:100%">
+                    <thead>
+                    <tr>
+                        <td>Score</td>
+                        <td>Age</td>
+                        <td>Grade Level</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>5-6 </td>
+                        <td>Kindergarten</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>6-7 </td>
+                        <td>First/Second Grade </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>7-9 </td>
+                        <td>Third Grade </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>9-10 </td>
+                        <td>Fourth Grade </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>10-11 </td>
+                        <td>Fifth Grade </td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>11-12 </td>
+                        <td>Sixth Grade </td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>12-13 </td>
+                        <td>Seventh Grade </td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>13-14 </td>
+                        <td>Eighth Grade </td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>14-15 </td>
+                        <td>Ninth Grade </td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>15-16 </td>
+                        <td>Tenth Grade </td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>16-17 </td>
+                        <td>Eleventh Grade </td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td>17-18 </td>
+                        <td>Twelfth grade </td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td>18-24 </td>
+                        <td>College student </td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td>24+ </td>
+                        <td>Professor </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                          <tr>
+                              https://en.wikipedia.org/wiki/Automated_readability_index
+                          </tr>
+                    </tfoot>
+                </table>
+                 </div>
+                {% else %}
+                <h4>No automated readability score</h4>
+                {% endif %}
+                </div>
+                </div>
+                    <p><hr>
+                <div id="fre">
+              <div class="container_bar">
+                {% if argument.f_r_ease %}
+             <div class="panel panel-default">
+                <div class="panel-heading">
+                    <a id="popover" href='#' data-toggle='popover' title="Flesch reading ease" data-trigger="hover">
+                        <h3>Flesch reading ease</h3>
+                    </a>
+                </div>
+                 <div id="myPopoverContent" class="popovercontent">
+                <table class="table table-bordered" style="width:100%">
+                    <thead>
+                    <tr>
+                        <td>Score</td>
+                        <td>School level</td>
+                        <td>Notes</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>100.00-90.00</td>
+                        <td>5th grade</td>
+                        <td>Very easy to read. Easily understood by an average 11-year-old student.</td>
+                    </tr>
+                    <tr>
+                        <td>90.0–80.0</td>
+                        <td>6th grade</td>
+                        <td>Easy to read. Conversational English for consumers. </td>
+                    </tr>
+                    <tr>
+                        <td>80.0–70.0</td>
+                        <td>7th grade</td>
+                        <td>Fairly easy to read.</td>
+                    </tr>
+                    <tr>
+                        <td>70.0–60.0</td>
+                        <td>8th & 9th grade </td>
+                        <td>Plain English. Easily understood by 13- to 15-year-old students. </td>
+                    </tr>
+                  <tr>
+                        <td>60.0–50.0 </td>
+                        <td>10th to 12th grade </td>
+                        <td>Fairly difficult to read. </td>
+                    </tr>
+                  <tr>
+                        <td>50.0–30.0 </td>
+                        <td>College</td>
+                        <td>Difficult to read. </td>
+                    </tr>
+                    <tr>
+                        <td>30.0–0.0 </td>
+                        <td>College graduate</td>
+                        <td>Very difficult to read. Best understood by university graduates.</td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                          <tr>
+                            Source: https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests
+                         </tr>
+                    </tfoot>
+                </table>
+                 </div>
+                <div class="panel-body">
+                    <canvas id="f_r_ease"></canvas>
+                </div>
+                 </div>
+                 {% else %}
+                 <h4>No flesch score</h4>
+                 {% endif %}
+                  <p><hr>
+                    </div>
+                </div>
+                 <div id="aca">
+                {% if argument.context_assessment %}
+                <div class="container_right">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                               <a id="acadpopover" href='#' data-toggle='popover' title="Academic domains" data-trigger="hover">
+                                    <h3>Academic domains</h3>
+                               </a>
+                                </div>
+                                <div class="panel-body">
+                                    <canvas id="acadCore"></canvas>
+                                </div>
+                            </div></div>
+                    <div id="acadcontent" class="popovercontent">
+                    Shows how more frequently a word is used in an
+                    <tr>academic context than in common use</tr>
+                </div>
+                {% else %}
+                <h4>No academic score</h4>
+                {% endif %}
+                    </div>
+                <p><hr>
+                    <div id="emo">
+                        {% if argument.emotion %}
+                        <div class="container_right">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3>Emotions</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <canvas id="emotions"></canvas>
+                                        </div>
+                                    </div>
+                        </div>
+                        {% else %}
+                        <h4>No emotions analysed</h4>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+        <div id="background">
+        <h3>Background Information</h3>
+             <div  class="well well-sm">
+                 <div id="lang">
+                <div id="key">
+                    <dt>Keywords: </dt>
+                        {% for keyword in argument.keywords.all %}
+                        <dd><a href="{% url 'wiki:news' keyword.keywordtext.id %} ">{{keyword.keywordtext}} ({{keyword.relevance}})</a></dd>
+                        {% endfor %}
+                </div>
+                <p><hr>
+                <div id="conc">
+                    <dt>Concepts: </dt>
+                        {% for concept in argument.concepts.all %}
+                        <dd><a href="{{concept.conceptname.explanation}}">{{concept}}</a></dd>
+                    {% endfor %}
+                </div>
+                <p><hr>
+                <div id="cat">
+                    <dt>Categories: </dt>
+                        {% for category in argument.categories.all %}
+                        <dd><a href="{% url 'wiki:category' category.categorylabel.id %}">{{category}}</a></dd>
+                        {% endfor %}
+                </div>
+            </div>
+            <p><hr>
+            <div id="wiki">
+                <div id="wikif">
+                <dt>Information :</dt>
+                    {% if argument.has_full_information %}
+                        {% for information in argument.information.all %}
+                            {% if information.full %}
+                                <dd>for {{information}}</dd>
+                                <dd><a href="{{information.link}}">{{information.title}}</a></dd>
+                                <dd>{{information.description}}</dd>
+                                <dd>{{information.summary}}</dd>
+                                <p><hr>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <dd>No information found!</dd>
+                    {% endif %}
+                    </div>
+                <div id="wikia">
+                    <dt>Ambivalent Information :</dt>
+                        {% if argument.has_ambi_information %}
+                            {% for information in argument.information.all %}
+                                {% if information.ambivalent %}
+                                    <dd>for {{information}}</dd>
+                                    <dd><a href="{{information.link}}">{{information.title}}</a></dd>
+                                    <p><hr>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <dd>No ambivalent information found!</dd>
+                        {% endif %}
+                    </div>
+                 </div>
+                </div>
+            </div>
+        </div>
+    <script src="{% static 'wiki/js/popover.min.js' %}"></script>
+    <script>function playSound(){var n=new Audio("{{argument.sound}}");n.type="audio/mp3",n.play()}</script>
+    <script >
+        {% if argument.ari %}
+        var dataAriBar = {
+                datasets: [{
+                   label: 'Automated Readability Index',
+                   data: [{{argument.ari}}],
+                   backgroundColor: function (){
+                    if ({{argument.ari}} <= 1) return '#8bb2b9'
+                    else if ({{argument.ari}} <= 6) return '#7ba7b0'
+                    else if ({{argument.ari}} == 7) return '#6b9da6'
+                    else if ({{argument.ari}} <= 9) return '#5d919b'
+                    else if ({{argument.ari}} <= 12) return '#53828b'
+                    else if ({{argument.ari}} == 13) return '#49737b'
+                    else return '#36555b'
+                }
+                }],
+                labels: ['Automated Readability Index']
+        };
+        {% endif %}
+        {% if argument.argument_acceptance %}
+        var dataAcBar ={
+                datasets: [{
+                    data : [{{argument.acceptance}}],
+                    label: 'Acceptability',
+                    backgroundColor: function (){
+                        if ({{argument.acceptance}} < 45) return '#E50000'
+                        if ({{argument.acceptance}} > 55) return '#008E00'
+                        else return '#FFA500'
+                        }
+                }],
+                labels: ['Acceptance']
+            };
+            {% endif %}
+        {% if argument.f_r_ease %}
+        var databar = {
+             datasets: [
+                {
+                label: 'Flesch Reading Ease Score',
+                data: [{{argument.f_r_ease}}],
+                backgroundColor: function (){
+                    if ({{argument.f_r_ease}} > 90) return '#8bb2b9'
+                    else if ({{argument.f_r_ease}} <= 90 && {{argument.f_r_ease}} > 80) return '#7ba7b0'
+                    else if ({{argument.f_r_ease}} <= 80 && {{argument.f_r_ease}} > 70) return '#6b9da6'
+                        else if ({{argument.f_r_ease}} <= 70 && {{argument.f_r_ease}} > 60) return '#5d919b'
+                    else if ({{argument.f_r_ease}} <= 60 && {{argument.f_r_ease}} > 50) return '#53828b'
+                    else if ({{argument.f_r_ease}} <= 50 && {{argument.f_r_ease}} > 30) return '#49737b'
+                    else return '#36555b'
+                }
+                }],
+              labels: ['Flesch Reading Ease']
+              };
+         {% endif %}
+        var datadough = {
+            datasets: [
+                {
+                data: [{{argument.upVotes}},{{argument.downVotes}}],
+                backgroundColor :['#00cd00', '#f00']}],
+
+            // These labels appear in the legend and in the tooltips when hovering different arcs
+            labels: [
+                'Up Votes',
+                'Down Votes'
+            ]
+          };
+         data = []
+        var his = 0,
+            edu = 0,
+            soc = 0,
+            bus = 0,
+            med = 0,
+            hum = 0,
+            sci = 0,
+            law = 0,
+            phil = 0;
+         {% for information in argument.information.all %}
+            {% if information.acad_score %}
+            var his = his + {{information.acad_score.his}};
+            var edu = edu + {{information.acad_score.edu}};
+            var soc = soc + {{information.acad_score.soc}};
+            var bus = bus + {{information.acad_score.bus}};
+            var med = med + {{information.acad_score.med}};
+            var hum = hum + {{information.acad_score.hum}};
+            var sci = sci + {{information.acad_score.sci}};
+            var law = law + {{information.acad_score.law}};
+            var phil = phil + {{information.acad_score.phil}};
+            data.push( {
+                            label : '{{information.title}}/{{information.word}}',
+                            fill: true,
+                            hidden: true,
+                            backgroundColor: '{{information.acad_score.background}}',
+                            borderColor: '{{information.acad_score.linecol}}',
+                            data : [{{information.acad_score.his}},
+                                    {{information.acad_score.edu}},
+                                    {{information.acad_score.soc}},
+                                    {{information.acad_score.bus}},
+                                    {{information.acad_score.med}},
+                                    {{information.acad_score.hum}},
+                                    {{information.acad_score.sci}},
+                                    {{information.acad_score.law}},
+                                    {{information.acad_score.phil}}]
+                       });
+                {% endif %}
+         {% endfor %}
+         data.push({
+                        label: 'Average',
+                        fill: true,
+                        backgroundColor: 'rgba(220,220,220,0.5)',
+                        borderColor: 'rgba(220,220,220,0.8)',
+                        data : [(his/data.length).toFixed(2),
+                                (edu/data.length).toFixed(2),
+                                (soc/data.length).toFixed(2),
+                                (bus/data.length).toFixed(2),
+                                (med/data.length).toFixed(2),
+                                (hum/data.length).toFixed(2),
+                                (sci/data.length).toFixed(2),
+                                (law/data.length).toFixed(2),
+                                (phil/data.length).toFixed(2)]
+                         });
+           radarData = {
+             labels : ['History',
+                      'Education',
+                      'Social science',
+                      'Business',
+                      'Medicine',
+                      'Humane science',
+                      'Natural science',
+                      'Law',
+                      'Philosophy'],
+                       datasets : data}
+         {% if argument.emotion %}
+             dataEmotions = [{
+                        label : 'Emotionality',
+                        fill: true,
+                        backgroundColor: '{{argument.emotion.background}}',
+                        borderColor: '{{argument.emotion.linecol}}',
+                        data : [{{argument.emotion.sadness}},
+                                {{argument.emotion.joy}},
+                                {{argument.emotion.fear}},
+                                {{argument.emotion.disgust}},
+                                {{argument.emotion.anger}}]
+                       }];
+            radarEmotion = {
+                        labels : ['{{argument.emotion.sadness_label}}',
+                          '{{argument.emotion.joy_label}}',
+                          '{{argument.emotion.fear_label}}',
+                          '{{argument.emotion.disgust_label}}',
+                          '{{argument.emotion.anger_label}}'],
+                          datasets : dataEmotions}
+          {% endif %}
+          window.onload = function(){
+           {% if argument.argument_acceptance %}
+            var ctab = document.getElementById('acceptance').getContext('2d');
+            window.myaBar = new Chart(ctab, {
+                type: 'horizontalBar',
+                data: dataAcBar,
+                options: {
+                    responsive : true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            ticks : {
+                                steps: 10,
+                                stepValue: 5,
+                                beginAtZero: true,
+                                max: 100,
+                            }
+                        }]
+                    }
+                 }
+                });
+               {% endif %}
+            {% if argument.downVotes != 0 or argument.upVotes != 0 %}
+            var ctx = document.getElementById('voteRatio').getContext('2d');
+            window.myDoughnut = new Chart(ctx, {
+                type: 'doughnut',
+                data : datadough,
+                options: {}
+                });
+            {% endif %}
+            {% if argument.f_r_ease %}
+            var ctb = document.getElementById('f_r_ease').getContext('2d');
+            window.myBar = new Chart(ctb, {
+                type : 'horizontalBar',
+                data : databar,
+                options : {
+                    responsive : true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            ticks : {
+                                steps: 10,
+                                stepValue: 5,
+                                beginAtZero: true,
+                                max: 100,
+                            }
+                        }]
+                    }
+                 }
+             });
+            {% endif %}
+            {% if argument.ari %}
+            var ctbari = document.getElementById('ari').getContext('2d');
+            window.myBar = new Chart(ctbari, {
+                type : 'horizontalBar',
+                data : dataAriBar,
+                options : {
+                    responsive : true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            ticks : {
+                                steps: 1,
+                                stepValue: 1,
+                                beginAtZero: true,
+                                max: 14,
+                            }
+                        }]
+                    }
+                 }
+             });
+            {% endif %}
+        {% if argument.context_assessment %}
+         var ctr = document.getElementById('acadCore').getContext('2d');
+         window.radar = new Chart(ctr, {
+            type: 'radar',
+            data : radarData,
+            options: {
+              tooltips : {
+
+              callbacks : {
+                label : function(tooltipItem, data) {
+                  var dataset = data.datasets[tooltipItem.datasetIndex];
+                          return  dataset.label + ' : ' + dataset.data[tooltipItem.index];
+                        },
+                },
+              },
+            }
+            });
+          {% endif %}
+         {% if argument.emotion %}
+         var remo = document.getElementById('emotions').getContext('2d');
+         window.radar = new Chart(remo, {
+            type: 'radar',
+            data : radarEmotion,
+            options: {
+              tooltips : {
+                  callbacks : {
+                    label : function(tooltipItem, data) {
+                      var dataset = data.datasets[tooltipItem.datasetIndex];
+                              return  dataset.label + ' : ' + dataset.data[tooltipItem.index];
+                            },
+                },
+              },
+            }
+            });
+          {% endif %}
+        };
+    </script>
+
+</body>
+</html>

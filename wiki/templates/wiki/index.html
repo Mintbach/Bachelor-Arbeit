@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8"
+     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Issues</title>
+</head>
+<body>
+<div class="container">
+    <h2>Issues</h2>
+    {% if discussion_topics %}
+    <dl>
+    {% for issue in discussion_topics %}
+        <div class="well">
+            <a href="{% url 'wiki:issue' issue.id %}"><dt>{{ issue.issue_title }}</dt></a>
+                <dd>{{ issue.issue_info }}</dd>
+        </div>
+    {% endfor %}
+    </dl>
+{% else %}
+    <p>No Issues are available.</p>
+{% endif %}
+    <table>
+<form action="update" method="GET">
+    <button class="btn btn-primary" onclick="location.href={% url 'wiki:update' %}">Update</button>
+</form>
+    <form action="search" method="GET">
+    <button class="btn btn-primary" onclick="location.href={% url 'wiki:search' %}">Search</button>
+</form></table>
+</div>
+
+</body>
+
